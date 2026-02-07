@@ -27,7 +27,7 @@ export const auth = betterAuth({
         after: async (user) => {
 
           if (user.id){
-            await initailizeUserBoard(user.id);
+            await initializeUserBoard(user.id);
           }
         }
       }
