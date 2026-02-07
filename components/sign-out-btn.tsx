@@ -1,0 +1,22 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import { DropdownMenuItem } from "./ui/dropdown-menu"
+import { signOut } from "@/lib/auth/auth-client"
+
+export default function SignOutButton() {
+    const router = useRouter();
+    return (
+    <DropdownMenuItem onClick={async () => {await signOut();
+        const result = await signOut();
+        if (result.data){
+            router.push("/signin");
+        }else{
+            alert("Error signing out");
+        }
+
+    }}>
+        Log Out
+    </DropdownMenuItem>
+    )
+}

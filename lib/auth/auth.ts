@@ -1,0 +1,56 @@
+import { betterAuth } from "better-auth";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { MongoClient } from "mongodb";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { initializeUserBoard } from "../init-user-board";
+
+const client = new MongoClient(process.env.MONGODB_URI!);
+const db = client.db();
+
+export const auth = betterAuth({
+  database: mongodbAdapter(db,{
+    client,
+  }),// Two parameters are needed to pass here database instance and client 
+  session:{
+    cookieCache:{
+      enabled: true,
+      maxAge: 60*60,
+    }
+  },
+  emailAndPassword:{
+    enabled: true,
+  },
+  databaseHooks:{
+    user:{
+      create:{
+        after: async (user) => {
+
+          if (user.id){
+            await initailizeUserBoard(user.id);
+          }
+        }
+      }
+    }
+  }
+});
+
+export async function  getSession(){
+  const result = await auth.api.getSession({
+    headers: await headers()
+  })
+
+  return result;
+}
+
+
+export async function  signOut(){
+  const result = await auth.api.signOut({
+    headers: await headers()
+  })
+
+  if(result.success){
+    redirect("/signin");
+    // Earlier you were using router like useRouter from the next/navigation but it is possible because you were on the client side not on the server side if you were on the server side then you have to use the redirect 
+  }
+}
